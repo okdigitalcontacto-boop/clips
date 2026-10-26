@@ -1,0 +1,31 @@
+Clips 1.0.0 para Windows
+© 2026 OK Digital. Todos los derechos reservados.
+
+Saca los mejores momentos de un vídeo de YouTube y te los da montados: recortados en frases
+completas, en vertical siguiendo la cara, con subtítulos palabra a palabra, título y música.
+
+PRIMERA VEZ
+1. Descomprime esta carpeta donde quieras (por ejemplo, en Documentos). No la ejecutes desde dentro del .zip.
+2. Abre Clips.exe.
+   Si Windows muestra «Windows protegió su PC», pulsa «Más información» y luego «Ejecutar de todas formas»
+   (sale porque la app no está firmada con un certificado de pago).
+3. Pulsa el engranaje (arriba a la derecha) → «Clave de Gemini»:
+   a. Abre https://aistudio.google.com/apikey e inicia sesión con tu cuenta de Google.
+   b. Pulsa «Create API key» y copia la clave.
+   c. Pégala en Clips y pulsa «Probar». Es gratis.
+
+USO
+1. Copia el enlace de un vídeo de YouTube y vuelve a Clips (lo pega solo) o arrástralo a la ventana.
+2. Elige cuántos clips, la duración, horizontal o vertical, qué añadir y qué buscar.
+   Opcional: escribe en «Notas» lo que quieras («10 en orden cronológico», «uno de cada parte»…).
+3. Pulsa «Sacar clips» (Ctrl+Intro). Cancelar: Esc.
+4. Los clips se guardan en Vídeos\Clips\<título del vídeo> (se cambia en Ajustes, Ctrl+,).
+5. Botón «Subir» de cada clip: abre la página de subida de YouTube, Instagram o TikTok, copia el texto
+   y te enseña el archivo en el Explorador para arrastrarlo.
+
+REQUISITOS
+Windows 10 u 11 de 64 bits con Microsoft Edge WebView2 (viene de serie en Windows 11 y en Windows 10 actualizado).
+Todo lo demás (yt-dlp, ffmpeg y Deno) va dentro de la carpeta bin.
+
+Si YouTube cambia algo y deja de descargar, Clips ofrece «Actualizar yt-dlp».
+Si algo falla, el registro está en %LOCALAPPDATA%\Clips\clips.log.

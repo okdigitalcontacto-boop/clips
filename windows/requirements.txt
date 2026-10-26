@@ -1,0 +1,6 @@
+# Clips para Windows · © 2026 OK Digital. Todos los derechos reservados.
+numpy==2.5.4
+opencv-python-headless==5.0.0.93
+pillow==13.0.0
+pywebview==6.2.1
+requests==2.34.2

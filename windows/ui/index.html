@@ -1,0 +1,75 @@
+<!doctype html>
+<!-- Clips para Windows · © 2026 OK Digital. Todos los derechos reservados. -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clips</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><linearGradient id="heat" x1="0" x2="1"><stop offset="0" stop-color="#6E6BF0"/><stop offset="1" stop-color="#FF5C36"/></linearGradient></defs>
+</svg>
+<main>
+  <header>
+    <h1>Clips</h1>
+    <p>Los mejores momentos de un vídeo, listos para subir</p>
+    <span class="spacer"></span>
+    <button class="round-btn" id="gear" title="Ajustes (Ctrl+,)"></button>
+  </header>
+
+  <div class="inputbar" id="bar">
+    <span class="lead" id="lead"></span>
+    <input id="url" placeholder="Pega aquí un enlace de YouTube" spellcheck="false" autocomplete="off">
+    <button class="clear hidden" id="clear" title="Borrar"></button>
+    <button class="ghost" id="paste">Pegar</button>
+    <button class="primary" id="go" title="Sacar clips (Ctrl+Intro)"></button>
+  </div>
+  <div class="hint-invalid hidden" id="invalid">Eso no parece un enlace de YouTube.</div>
+
+  <section class="options" id="options">
+    <div class="row">
+      <div class="count" id="count"></div>
+      <div class="pills" id="dur" title="Duración de cada clip"></div>
+      <div class="pills" id="orient" title="Vertical recorta siguiendo la cara de quien habla"></div>
+    </div>
+    <div class="row">
+      <span class="label">Añadir</span>
+      <button class="chip" id="subs" title="Subtítulos palabra a palabra, grabados en el vídeo"></button>
+      <button class="chip" id="hook" title="El título del clip arriba durante los primeros 3 segundos, como gancho"></button>
+      <button class="chip" id="music" title="Música suave de fondo que baja sola cuando se habla"></button>
+      <div class="pills" id="mood"></div>
+    </div>
+    <div class="row">
+      <span class="label">Buscar</span>
+      <div class="pills" id="focus"></div>
+    </div>
+    <div class="row" title="Lo que escribas aquí manda sobre el número de clips y el orden">
+      <span class="label">Notas</span>
+      <div class="notes">
+        <textarea id="notes" rows="1" spellcheck="false" placeholder="Opcional: «10 en orden cronológico», «está en 5 partes, uno de cada»…"></textarea>
+        <button class="clear hidden" id="notes-clear" title="Borrar notas"></button>
+      </div>
+    </div>
+  </section>
+
+  <div id="notice" class="notice hidden"></div>
+  <div id="error"></div>
+  <div id="job"></div>
+  <section id="clips" class="hidden">
+    <div class="grid-head">
+      <h2 id="clips-title">Clips elegidos</h2>
+      <small id="clips-sub">ordenados por potencial</small>
+      <span class="spacer"></span>
+      <button class="link-btn hidden" id="copy-all"></button>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+  <div id="empty" class="empty"></div>
+</main>
+<div id="sheet"></div>
+<script src="sounds.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

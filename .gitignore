@@ -1,0 +1,12 @@
+.DS_Store
+build/
+*.app
+__pycache__/
+*.pyc
+windows/build/
+windows/dist/
+windows/tools/
+windows/bin/
+windows/ffmpeg/
+windows/*.zip
+windows/selftest.log
