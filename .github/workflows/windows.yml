@@ -46,7 +46,7 @@ jobs:
         run: |
           python -m PyInstaller --noconfirm clips.spec
           Copy-Item tools dist/Clips/bin -Recurse -Force
-          Copy-Item ../LICENSE, ../THIRD_PARTY_NOTICES.md, LEEME.txt dist/Clips/
+          Copy-Item ../LICENSE, ../THIRD_PARTY_NOTICES.md, LEEME.txt, Clips.exe.config dist/Clips/
 
       - name: Prueba sin internet (montaje de punta a punta)
         run: |
@@ -54,20 +54,43 @@ jobs:
           Get-Content selftest.log
           if ($p.ExitCode -ne 0) { throw "La prueba ha fallado" }
 
-      - name: Prueba de la ventana (captura)
+      - name: Comprimir
+        run: Compress-Archive dist/Clips "Clips-Windows-x64.zip" -CompressionLevel Optimal
+
+      - name: Prueba de la ventana como en un PC (zip descargado de internet)
         run: |
-          $p = Start-Process dist/Clips/Clips.exe -PassThru
-          Start-Sleep 15
+          # Como al descargar con el navegador: todo lo que sale del .zip lleva la marca de internet.
+          function Marcar($dir) { Get-ChildItem $dir -Recurse -File | ForEach-Object { Set-Content $_.FullName -Stream Zone.Identifier -Value "[ZoneTransfer]`r`nZoneId=3" } }
+          function Abrir($exe, $flag) {
+            $old = $env:CLIPS_NO_UNBLOCK; $env:CLIPS_NO_UNBLOCK = $flag
+            $p = Start-Process $exe -PassThru
+            $env:CLIPS_NO_UNBLOCK = $old
+            Start-Sleep 20
+            $titles = (Get-Process | Where-Object MainWindowTitle | ForEach-Object MainWindowTitle) -join " | "
+            $title = if ($p.HasExited) { "(cerrada)" } else { (Get-Process -Id $p.Id).MainWindowTitle }
+            return @($p, $title, $titles)
+          }
+          Expand-Archive Clips-Windows-x64.zip -DestinationPath pc -Force
+          # Diagnóstico: sin el arreglo debería salir el error de .NET.
+          Copy-Item pc/Clips sin-arreglo -Recurse
+          Remove-Item sin-arreglo/Clips.exe.config
+          Marcar sin-arreglo
+          $r = Abrir "$PWD\sin-arreglo\Clips.exe" "1"
+          "Sin el arreglo -> ventana: '$($r[1])' · ventanas abiertas: $($r[2])"
+          if (-not $r[0].HasExited) { Stop-Process -Id $r[0].Id -Force }
+          Get-Process | Where-Object MainWindowTitle -like "*exception*" | Stop-Process -Force
+          # La de verdad, con el arreglo.
+          Marcar pc
+          "Archivos con la marca: $((Get-ChildItem pc -Recurse -File | Where-Object { Get-Item $_.FullName -Stream Zone.Identifier -ErrorAction SilentlyContinue }).Count)"
+          $r = Abrir "$PWD\pc\Clips\Clips.exe" ""
           Add-Type -AssemblyName System.Windows.Forms, System.Drawing
           $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
           $img = New-Object System.Drawing.Bitmap $b.Width, $b.Height
           [System.Drawing.Graphics]::FromImage($img).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
           $img.Save("$PWD/ventana.png")
-          if ($p.HasExited) { throw "La ventana se ha cerrado sola (código $($p.ExitCode))" }
-          Stop-Process -Id $p.Id -Force
-
-      - name: Comprimir
-        run: Compress-Archive dist/Clips "Clips-Windows-x64.zip" -CompressionLevel Optimal
+          "Con el arreglo -> ventana: '$($r[1])' · ventanas abiertas: $($r[2])"
+          if ($r[1] -ne "Clips") { throw "No ha abierto la ventana de Clips" }
+          Stop-Process -Id $r[0].Id -Force
 
       - uses: actions/upload-artifact@v4
         with:

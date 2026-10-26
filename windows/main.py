@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import multiprocessing
+import os
 import sys
 import time
 
@@ -56,7 +57,21 @@ def test(args) -> int:
     return 0 if m.ready_count else 1
 
 
+def unblock() -> None:
+    """Quita la marca «descargado de internet» que Windows pone a todo lo que sale del .zip.
+    Con ella, .NET se niega a cargar las DLL de la ventana (Python.Runtime.Loader.Initialize)."""
+    if sys.platform != "win32" or not getattr(sys, "frozen", False) or os.environ.get("CLIPS_NO_UNBLOCK"):
+        return
+    for root, _, files in os.walk(os.path.dirname(sys.executable)):
+        for f in files:
+            try:
+                os.remove(os.path.join(root, f) + ":Zone.Identifier")
+            except OSError:
+                pass
+
+
 def main() -> int:
+    unblock()
     args = sys.argv
     if len(args) >= 3 and args[1] == "--test":
         return test(args)

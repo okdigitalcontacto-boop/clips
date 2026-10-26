@@ -16,7 +16,7 @@ Expand-Archive deno.zip -DestinationPath $bin -Force
 python -m PyInstaller --noconfirm clips.spec
 Copy-Item $bin "dist/Clips/bin" -Recurse -Force
 Copy-Item ../LICENSE, ../THIRD_PARTY_NOTICES.md "dist/Clips/"
-Copy-Item LEEME.txt "dist/Clips/"
+Copy-Item LEEME.txt, Clips.exe.config "dist/Clips/"
 $p = Start-Process "dist/Clips/Clips.exe" -ArgumentList "--selftest","--log","$PWD/selftest.log" -Wait -PassThru
 Get-Content selftest.log
 if ($p.ExitCode -ne 0) { throw "La prueba ha fallado" }

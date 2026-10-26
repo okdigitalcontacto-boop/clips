@@ -15,7 +15,7 @@ from pathlib import Path
 
 WINDOWS = sys.platform == "win32"
 APP_NAME = "Clips"
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 COPYRIGHT = "© 2026 OK Digital. Todos los derechos reservados."
 
 
