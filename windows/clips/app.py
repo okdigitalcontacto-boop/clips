@@ -144,6 +144,28 @@ def replace_file(src: Path, dest: Path) -> Path:
 
 # MARK: - Estado de cada clip
 
+
+def reserve_dir(root: Path, name: str) -> Path:
+    """Crea root/name (o «name (2)», «name (3)»…) y comprueba que de verdad se puede escribir dentro."""
+    root.mkdir(parents=True, exist_ok=True)
+    base = root / name
+    out, n = base, 2
+    while True:
+        try:
+            out.mkdir()
+            break
+        except FileExistsError:
+            out = Path(f"{base} ({n})")
+            n += 1
+    try:
+        probe_file = out / ".clips"
+        probe_file.write_bytes(b"")
+        probe_file.unlink()
+    except OSError:
+        shutil.rmtree(out, ignore_errors=True)
+        raise
+    return out
+
 class ClipItem:
     def __init__(self, rank: int, m: Moment, options: RenderOptions):
         self.id = uuid.uuid4().hex
@@ -437,17 +459,23 @@ class Model:
                                if info.duration > 0 and fits < asked else
                                f"Solo {len(moments)} de los candidatos han pasado la revisión; prefiero darte menos antes que clips flojos.")
 
-            # Reservar la carpeta: si ya existe, probar con (2), (3)…
-            self.output_base.mkdir(parents=True, exist_ok=True)
-            base = self.output_base / safe_name(info.title)
-            out, n = base, 2
-            while True:
+            # Reservar la carpeta. Si Windows no deja escribir en la elegida (raíz de un disco, protección
+            # contra ransomware…), se guarda en Vídeos › Clips o en la carpeta del usuario y se avisa.
+            chosen = self.output_base
+            out = None
+            for root in dict.fromkeys([chosen, videos_dir() / "Clips", Path.home() / "Clips"]):
                 try:
-                    out.mkdir()
+                    out = reserve_dir(root, safe_name(info.title))
                     break
-                except FileExistsError:
-                    out = Path(f"{base} ({n})")
-                    n += 1
+                except OSError as e:
+                    self.log(f"No se puede guardar en {root}: {e}")
+            if out is None:
+                raise ClipsError("Windows no deja guardar los clips en ninguna carpeta. Elige otra en Ajustes, "
+                                 "por ejemplo una dentro de Documentos.", opens_settings=True)
+            if out.parent != chosen:
+                where = "Vídeos › Clips" if out.parent == videos_dir() / "Clips" else str(out.parent)
+                msg = f"Windows no deja guardar en {chosen}, así que los clips van a {where}. Puedes cambiar la carpeta en Ajustes."
+                self.notice = f"{self.notice} {msg}" if self.notice else msg
             self.out_dir = out
 
             ropts = RenderOptions(opts["vertical"], opts["subtitles"], opts["music"], opts["mood"], opts["hook"])
@@ -659,7 +687,7 @@ class Api:
 
     def _output_label(self):
         p = settings.get("outputDir") or ""
-        return f"Vídeos › Clips" if not p else Path(p).name
+        return "Vídeos › Clips" if not p else (Path(p).name or p)
 
     def set_option(self, key, value):
         if key in ("count", "durIdx", "vertical", "subtitles", "focus", "music", "mood", "hook", "sounds"):
