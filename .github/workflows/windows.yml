@@ -76,7 +76,8 @@ jobs:
         continue-on-error: true
         run: |
           $env:CLIPS_NO_UNBLOCK = "1"
-          $p = Start-Process "$PWD\sin-arreglo\Clips.exe" -PassThru
+          # Abrir directamente (en el PC el aviso de SmartScreen ya se ha aceptado a mano).
+          $p = [Diagnostics.Process]::Start([Diagnostics.ProcessStartInfo]@{ FileName = "$PWD\sin-arreglo\Clips.exe"; UseShellExecute = $false })
           Start-Sleep 20
           $p.Refresh()
           Write-Host "Sin el arreglo -> cerrada: $($p.HasExited) · ventana: '$($p.MainWindowTitle)'"
@@ -86,7 +87,8 @@ jobs:
         timeout-minutes: 3
         run: |
           Write-Host "Marca antes de abrir: $([bool](Get-Item pc/Clips.exe -Stream Zone.Identifier -ErrorAction SilentlyContinue))"
-          $p = Start-Process "$PWD\pc\Clips.exe" -PassThru
+          # Abrir directamente (en el PC el aviso de SmartScreen ya se ha aceptado a mano).
+          $p = [Diagnostics.Process]::Start([Diagnostics.ProcessStartInfo]@{ FileName = "$PWD\pc\Clips.exe"; UseShellExecute = $false })
           Start-Sleep 20
           $p.Refresh()
           Add-Type -AssemblyName System.Windows.Forms, System.Drawing
