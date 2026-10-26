@@ -69,7 +69,7 @@ jobs:
             Get-ChildItem $d -Recurse -File | ForEach-Object { [IO.File]::WriteAllText($_.FullName + ":Zone.Identifier", "[ZoneTransfer]`r`nZoneId=3`r`n") }
           }
           Write-Host "Marcados $((Get-ChildItem pc -Recurse -File).Count) archivos $(Get-Date -Format T)"
-          Get-Content pc/Clips.exe:Zone.Identifier
+          Get-Content pc/Clips.exe -Stream Zone.Identifier
 
       - name: Diagnóstico sin el arreglo (debería fallar)
         timeout-minutes: 3
@@ -85,7 +85,7 @@ jobs:
       - name: Prueba de la ventana con el arreglo (captura)
         timeout-minutes: 3
         run: |
-          Write-Host "Marca antes de abrir: $(Test-Path pc/Clips.exe:Zone.Identifier)"
+          Write-Host "Marca antes de abrir: $([bool](Get-Item pc/Clips.exe -Stream Zone.Identifier -ErrorAction SilentlyContinue))"
           $p = Start-Process "$PWD\pc\Clips.exe" -PassThru
           Start-Sleep 20
           $p.Refresh()
@@ -95,7 +95,7 @@ jobs:
           [System.Drawing.Graphics]::FromImage($img).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
           $img.Save("$PWD/ventana.png")
           Write-Host "Con el arreglo -> cerrada: $($p.HasExited) · ventana: '$($p.MainWindowTitle)'"
-          Write-Host "Marca después de abrir: $(Test-Path pc/Clips.exe:Zone.Identifier)"
+          Write-Host "Marca después de abrir: $([bool](Get-Item pc/Clips.exe -Stream Zone.Identifier -ErrorAction SilentlyContinue))"
           if ($p.HasExited -or $p.MainWindowTitle -ne "Clips") { throw "No ha abierto la ventana de Clips" }
           Stop-Process -Id $p.Id -Force
 
